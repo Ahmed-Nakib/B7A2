@@ -13,6 +13,7 @@ app.get('/api', (req: Request, res:Response) => {
   res.send('Hello World!')
 })
 
+
 app.use('/api/auth/', userRoute)
 app.use('/api/issues', issueRouter)
 
