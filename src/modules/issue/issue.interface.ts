@@ -4,6 +4,8 @@ export type IssueStatus = "open" | "in_progress" | "resolved";
 
 export type SortType = "newest" | "oldest";
 
+
+
 export interface ICreateIssue {
   title: string;
   description: string;
@@ -36,4 +38,11 @@ export interface IIssueResponse {
   created_at: Date;
   updated_at: Date;
   reporter: IUser | null;
+}
+
+export interface IUpdateIssue {
+  title?: string;
+  description?: string;
+  type?: "bug" | "feature_request";
+  status?: "open" | "in_progress" | "resolved";
 }

@@ -1,5 +1,5 @@
 import { pool } from "../../db";
-import type { IIssue } from "./issue.interface";
+import type { IIssue, IUpdateIssue, IUser } from "./issue.interface";
 
 const createIssuesIntoDB = async (payload: IIssue, reporterID: number) => {
   const { title, description, type } = payload;
@@ -116,10 +116,21 @@ const singleIssuesFromDB = async (id: any) => {
   return { rows: [finalData] };
 };
 
-const updateIssueIntoDB = async (id: string, payload: any, user: any) => {
-  const issueResult = await pool.query(`SELECT * FROM issues WHERE id=$1`, [
-    id,
-  ]);
+
+interface TUser {
+  id: number;
+  role: "contributor" | "maintainer";
+}
+
+const updateIssueIntoDB = async (
+  id: number,
+  payload: IUpdateIssue,
+  user: any
+) => {
+  const issueResult = await pool.query(
+    `SELECT * FROM issues WHERE id = $1`,
+    [id]
+  );
 
   if (issueResult.rows.length === 0) {
     return issueResult;
@@ -127,14 +138,25 @@ const updateIssueIntoDB = async (id: string, payload: any, user: any) => {
 
   const issue = issueResult.rows[0];
 
-  // maintainer OR owner check (contributor can only edit own + open)
+  /**
+   * contributor rules
+   */
   if (user.role !== "maintainer") {
-    if (issue.reporter_id !== user.id || issue.status !== "open") {
-      throw new Error("Forbidden");
+    // only own issue
+    if (issue.reporter_id !== user.id) {
+      throw new Error("FORBIDDEN");
     }
+
+    // only open issue editable
+    if (issue.status !== "open") {
+      throw new Error("ISSUE_LOCKED");
+    }
+
+    // contributor cannot change status
+    delete payload.status;
   }
 
-  const { title, description, type } = payload;
+  const { title, description, type, status } = payload;
 
   const result = await pool.query(
     `
@@ -143,15 +165,19 @@ const updateIssueIntoDB = async (id: string, payload: any, user: any) => {
       title = COALESCE($1, title),
       description = COALESCE($2, description),
       type = COALESCE($3, type),
+      status = COALESCE($4, status),
       updated_at = NOW()
-    WHERE id = $4
+    WHERE id = $5
     RETURNING *
     `,
-    [title, description, type, id],
+    [title, description, type, status, id]
   );
 
   return result;
 };
+
+
+
 
 const deleteIssueFromDB = async (id: string, user: any) => {
   if (user.role !== "maintainer") {
