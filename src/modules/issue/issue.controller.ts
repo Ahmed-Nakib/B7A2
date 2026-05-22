@@ -4,10 +4,14 @@ import sendResponse from "../../utility/sendResponse";
 
 const createIssues = async (req: Request, res: Response) => {
   try {
+    
+    if(!req.user){
+      throw new Error("Unauthorized")
+    }
 
-    const reporterID = req.user?.id;
+    const reporterID = req.user.id;
 
-    const result = await issuesService.createIssuesIntoDB(req.body, reporterID as string);
+    const result = await issuesService.createIssuesIntoDB(req.body, reporterID as number);
 
     sendResponse(res, {
       statusCode: 201,
@@ -31,24 +35,25 @@ const createIssues = async (req: Request, res: Response) => {
 const  getAllIssues = async (req: Request, res: Response) => {
   try {
 
-    const reporterID =await req.user?.id;
-    console.log(reporterID);
-    
+    const issues = await issuesService.getAllIssuesFromDB(req.query);
 
-    const result = await issuesService.getAllIssuesFromDB();
+    const formatted = await issuesService.attachReporterToIssues(issues);
 
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
-      message: "Issue created successfully",
-      data: result.rows,
-    });
+      message: "Issues retrieved successfully",
+      data: formatted
+    })
   } catch (error: any) {
-    res.status(500).json({
+    sendResponse(res, {
+      statusCode: 500,
       success: false,
       message: error.message,
       error,
-    });
-  }}
+  });
+}
+}
 
 
 

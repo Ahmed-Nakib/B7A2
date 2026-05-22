@@ -1,30 +1,39 @@
-export type ICreateIssue = {
+export type IssueType = "bug" | "feature_request";
+
+export type IssueStatus = "open" | "in_progress" | "resolved";
+
+export type SortType = "newest" | "oldest";
+
+export interface ICreateIssue {
   title: string;
   description: string;
+  type: IssueType;
+}
 
-  type: "bug" | "feature_request";
-};
-
-export type TIssue = {
+export interface IIssue {
   id: number;
   title: string;
   description: string;
-
-  type: "bug" | "feature_request";
-
-  status: "open" | "in_progress" | "resolved";
-
+  type: IssueType;
+  status: IssueStatus;
   reporter_id: number;
-
   created_at: Date;
   updated_at: Date;
-};
+}
 
-export type TUpdateIssue = {
-  title?: string;
-  description?: string;
+export interface IUser {
+  id: number;
+  name: string;
+  role: "contributor" | "maintainer";
+}
 
-  type?: "bug" | "feature_request";
-
-  status?: "open" | "in_progress" | "resolved";
-};
+export interface IIssueResponse {
+  id: number;
+  title: string;
+  description: string;
+  type: IssueType;
+  status: IssueStatus;
+  created_at: Date;
+  updated_at: Date;
+  reporter: IUser | null;
+}
