@@ -1,7 +1,7 @@
 import { pool } from "../../db";
-import type { TIssue } from "./issues.interface";
+import type { TIssue } from "./issue.interface";
 
-const createIssuesIntoDB = async (payload: TIssue,  reporterID: any ) => {
+const createIssuesIntoDB = async (payload: TIssue,  reporterID: string ) => {
   const { title, description, type,} = payload;
   const reporter_id = reporterID
 

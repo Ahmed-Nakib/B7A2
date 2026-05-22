@@ -1,26 +1,28 @@
 import type { Request, Response } from "express";
-import { issuesService } from "./issues.service";
+import { issuesService } from "./issue.service";
+import sendResponse from "../../utility/sendResponse";
 
 const createIssues = async (req: Request, res: Response) => {
   try {
 
-    const reporterID =await req.user?.id;
-    console.log(reporterID);
-    
+    const reporterID = req.user?.id;
 
-    const result = await issuesService.createIssuesIntoDB(req.body, reporterID);
+    const result = await issuesService.createIssuesIntoDB(req.body, reporterID as string);
 
-    res.status(201).json({
+    sendResponse(res, {
+      statusCode: 201,
       success: true,
       message: "Issue created successfully",
-      data: result.rows[0],
-    });
+      data: result.rows[0]
+
+    })
   } catch (error: any) {
-    res.status(500).json({
+    sendResponse(res,{
+      statusCode:500,
       success: false,
       message: error.message,
-      error,
-    });
+      error: error
+    })
   }
 };
 

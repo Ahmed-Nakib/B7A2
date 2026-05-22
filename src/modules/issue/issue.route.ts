@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { issuesController } from "./issues.controller";
-import auth from "../../middleware/auth";
+import { issuesController } from "./issue.controller";
+import auth from "../../middleware/auth.middleware";
 import { requireRole } from "../../middleware/role.middleware";
 
 const router = Router()

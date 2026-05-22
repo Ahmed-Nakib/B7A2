@@ -4,8 +4,14 @@ import type { IUser } from "./auth.interface.";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+
+
 const createUserIntoDB = async (payload: IUser) => {
-  const { name, email, password, role = "contributor" } = payload;
+  const { name, email, password, role } = payload;
+
+  if (!["contributor", "maintainer"].includes(role)){
+    throw new Error("Invalid role");
+  }
 
   const hashPassword = await bcrypt.hash(password, 10);
 
@@ -23,7 +29,10 @@ const createUserIntoDB = async (payload: IUser) => {
   return result;
 };
 
-const loginUser = async (payload: any) => {
+
+
+
+const loginUser = async (payload: IUser) => {
   const { password, email } = payload;
 
   const userData = await pool.query(
@@ -38,6 +47,7 @@ const loginUser = async (payload: any) => {
   }
 
   const user = userData.rows[0];
+  
   const matchPassword = await bcrypt.compare(password, user.password);
 
   if (!matchPassword) {
@@ -68,16 +78,8 @@ const loginUser = async (payload: any) => {
   };
 };
 
-const getAllUsersFromDb = async () => {
-  const result = await pool.query(`
-    SELECT * FROM users
-    `);
-
-  return result;
-};
 
 export const authService = {
   createUserIntoDB,
-  loginUser,
-  getAllUsersFromDb,
+  loginUser
 };
