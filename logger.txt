@@ -44,3 +44,21 @@ Method -> PATCH - Time -> 1779511331004 - URL -> /api/issues/2
 Method -> PATCH - Time -> 1779511338854 - URL -> /api/issues/3
 
 Method -> DELETE - Time -> 1779511350943 - URL -> /api/issues/1
+
+Method -> POST - Time -> 1779548383052 - URL -> /api/auth/signup
+
+Method -> POST - Time -> 1779548392369 - URL -> /api/auth/signup
+
+Method -> POST - Time -> 1779548410940 - URL -> /api/auth/login
+
+Method -> POST - Time -> 1779548430828 - URL -> /api/issues
+
+Method -> GET - Time -> 1779548452260 - URL -> /api/issues/
+
+Method -> GET - Time -> 1779548464415 - URL -> /api/issues/3
+
+Method -> PATCH - Time -> 1779548475455 - URL -> /api/issues/3
+
+Method -> DELETE - Time -> 1779548516000 - URL -> /api/issues/1
+
+Method -> DELETE - Time -> 1779548526188 - URL -> /api/issues/3

@@ -1,33 +1,38 @@
 import type { Request, Response } from "express";
 import { issuesService } from "./issue.service";
 import sendResponse from "../../utility/sendResponse";
-import type { IUser } from "./issue.interface";
+import type { ISingleIssueResponse, IUser } from "./issue.interface";
 
 const createIssues = async (req: Request, res: Response) => {
   try {
     if (!req.user) {
-      throw new Error("Unauthorized");
+      return sendResponse(res, {
+        statusCode: 401,
+        success: false,
+        message: "Unauthorized",
+        errors: "Authentication required",
+      });
     }
 
     const reporterID = req.user.id;
 
     const result = await issuesService.createIssuesIntoDB(
       req.body,
-      reporterID as number,
+      reporterID as number
     );
 
-    sendResponse(res, {
+    return sendResponse(res, {
       statusCode: 201,
       success: true,
       message: "Issue created successfully",
       data: result.rows[0],
     });
   } catch (error: any) {
-    sendResponse(res, {
+    return sendResponse(res, {
       statusCode: 500,
       success: false,
-      message: error.message,
-      error: error,
+      message: "Internal server error",
+      errors: error.message,
     });
   }
 };
@@ -35,21 +40,20 @@ const createIssues = async (req: Request, res: Response) => {
 const getAllIssues = async (req: Request, res: Response) => {
   try {
     const issues = await issuesService.getAllIssuesFromDB(req.query);
-
     const formatted = await issuesService.attachReporterToIssues(issues);
 
-    sendResponse(res, {
+    return sendResponse(res, {
       statusCode: 200,
       success: true,
       message: "Issues retrieved successfully",
       data: formatted,
     });
   } catch (error: any) {
-    sendResponse(res, {
+    return sendResponse(res, {
       statusCode: 500,
       success: false,
-      message: error.message,
-      error,
+      message: "Internal server error",
+      errors: error.message,
     });
   }
 };
@@ -64,34 +68,23 @@ const singleIssues = async (req: Request, res: Response) => {
       return sendResponse(res, {
         statusCode: 404,
         success: false,
-        message: "Issue Not found",
-        data: {},
-      });
-    }
-    const issue = result.rows[0];
-    if (!issue) {
-      return sendResponse(res, {
-        statusCode: 404,
-        success: false,
-        message: "Issue Not found",
-        data: null,
+        message: "Issue not found",
+        errors: "Issue does not exist",
       });
     }
 
     return sendResponse(res, {
       statusCode: 200,
       success: true,
-      message: "Issue retrieved successfully!",
-      data: issue,
+      message: "Issue retrieved successfully",
+      data: result.rows[0] as ISingleIssueResponse,
     });
-
-    
   } catch (error: any) {
-    sendResponse(res, {
+    return sendResponse(res, {
       statusCode: 500,
       success: false,
-      message: error.message,
-      error: error,
+      message: "Internal server error",
+      errors: error.message,
     });
   }
 };
@@ -103,7 +96,7 @@ const updateIssue = async (req: Request, res: Response) => {
     const result = await issuesService.updateIssueIntoDB(
       Number(id),
       req.body,
-      req.user as IUser,
+      req.user as IUser
     );
 
     if (result.rows.length === 0) {
@@ -111,6 +104,7 @@ const updateIssue = async (req: Request, res: Response) => {
         statusCode: 404,
         success: false,
         message: "Issue not found",
+        errors: "Issue does not exist",
       });
     }
 
@@ -120,13 +114,13 @@ const updateIssue = async (req: Request, res: Response) => {
       message: "Issue updated successfully",
       data: result.rows[0],
     });
-
   } catch (error: any) {
     if (error.message === "FORBIDDEN") {
       return sendResponse(res, {
         statusCode: 403,
         success: false,
         message: "Forbidden",
+        errors: "You do not have permission",
       });
     }
 
@@ -134,15 +128,16 @@ const updateIssue = async (req: Request, res: Response) => {
       return sendResponse(res, {
         statusCode: 409,
         success: false,
-        message: "Only open issues can be updated",
+        message: "Conflict",
+        errors: "Only open issues can be updated",
       });
     }
 
     return sendResponse(res, {
       statusCode: 500,
       success: false,
-      message: error.message,
-      error: error,
+      message: "Internal server error",
+      errors: error.message,
     });
   }
 };
@@ -151,13 +146,17 @@ const deleteIssue = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const result = await issuesService.deleteIssueFromDB(Number(id), req.user as IUser);
+    const result = await issuesService.deleteIssueFromDB(
+      Number(id),
+      req.user as IUser
+    );
 
     if (result.rows.length === 0) {
       return sendResponse(res, {
         statusCode: 404,
         success: false,
         message: "Issue not found",
+        errors: "Issue does not exist",
       });
     }
 
@@ -167,19 +166,20 @@ const deleteIssue = async (req: Request, res: Response) => {
       message: "Issue deleted successfully",
     });
   } catch (error: any) {
-    if (error.message === "Forbidden") {
+    if (error.message === "FORBIDDEN") {
       return sendResponse(res, {
         statusCode: 403,
         success: false,
         message: "Forbidden",
+        errors: "You do not have permission",
       });
     }
 
-    sendResponse(res, {
+    return sendResponse(res, {
       statusCode: 500,
       success: false,
-      message: error.message,
-      error: error,
+      message: "Internal server error",
+      errors: error.message,
     });
   }
 };
