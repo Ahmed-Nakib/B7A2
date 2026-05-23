@@ -1,5 +1,5 @@
 import { pool } from "../../db";
-import type { IIssue, IUpdateIssue, IUser } from "./issue.interface";
+import type { IIssue, ISingleIssueResponse, IUpdateIssue, IUser, QueryValue } from "./issue.interface";
 
 const createIssuesIntoDB = async (payload: IIssue, reporterID: number) => {
   const { title, description, type } = payload;
@@ -23,7 +23,7 @@ const getAllIssuesFromDB = async (query: any): Promise<IIssue[]> => {
 
   let sql = `SELECT * FROM issues`;
   const conditions: string[] = [];
-  const values: any[] = [];
+  const values: QueryValue[] = [];
 
   if (type) {
     values.push(type);
@@ -52,7 +52,7 @@ const getAllIssuesFromDB = async (query: any): Promise<IIssue[]> => {
 
 
 
-const attachReporterToIssues = async (issues: any[]) => {
+const attachReporterToIssues = async (issues: IIssue[]) => {
    if (issues.length === 0) return [];
 
   const userIds = [...new Set(issues.map((i) => i.reporter_id))];
@@ -79,7 +79,7 @@ const attachReporterToIssues = async (issues: any[]) => {
 
 
 
-const singleIssuesFromDB = async (id: any) => {
+const singleIssuesFromDB = async (id: number):Promise<{ rows: ISingleIssueResponse[] }> => {
   const issueResult = await pool.query(
     `
     SELECT * FROM issues WHERE id=$1
@@ -117,15 +117,12 @@ const singleIssuesFromDB = async (id: any) => {
 };
 
 
-interface TUser {
-  id: number;
-  role: "contributor" | "maintainer";
-}
+
 
 const updateIssueIntoDB = async (
   id: number,
   payload: IUpdateIssue,
-  user: any
+  user: IUser
 ) => {
   const issueResult = await pool.query(
     `SELECT * FROM issues WHERE id = $1`,
@@ -138,21 +135,15 @@ const updateIssueIntoDB = async (
 
   const issue = issueResult.rows[0];
 
-  /**
-   * contributor rules
-   */
   if (user.role !== "maintainer") {
-    // only own issue
     if (issue.reporter_id !== user.id) {
       throw new Error("FORBIDDEN");
     }
 
-    // only open issue editable
     if (issue.status !== "open") {
       throw new Error("ISSUE_LOCKED");
     }
 
-    // contributor cannot change status
     delete payload.status;
   }
 
@@ -179,7 +170,7 @@ const updateIssueIntoDB = async (
 
 
 
-const deleteIssueFromDB = async (id: string, user: any) => {
+const deleteIssueFromDB = async (id: number, user: IUser) => {
   if (user.role !== "maintainer") {
     throw new Error("Forbidden");
   }

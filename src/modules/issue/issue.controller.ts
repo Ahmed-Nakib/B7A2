@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { issuesService } from "./issue.service";
 import sendResponse from "../../utility/sendResponse";
+import type { IUser } from "./issue.interface";
 
 const createIssues = async (req: Request, res: Response) => {
   try {
@@ -57,7 +58,7 @@ const singleIssues = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const result = await issuesService.singleIssuesFromDB(id);
+    const result = await issuesService.singleIssuesFromDB(Number(id));
 
     if (result.rows.length === 0) {
       return sendResponse(res, {
@@ -67,13 +68,24 @@ const singleIssues = async (req: Request, res: Response) => {
         data: {},
       });
     }
+    const issue = result.rows[0];
+    if (!issue) {
+      return sendResponse(res, {
+        statusCode: 404,
+        success: false,
+        message: "Issue Not found",
+        data: null,
+      });
+    }
 
-    sendResponse(res, {
+    return sendResponse(res, {
       statusCode: 200,
       success: true,
       message: "Issue retrieved successfully!",
-      data: result.rows[0] as any,
+      data: issue,
     });
+
+    
   } catch (error: any) {
     sendResponse(res, {
       statusCode: 500,
@@ -91,7 +103,7 @@ const updateIssue = async (req: Request, res: Response) => {
     const result = await issuesService.updateIssueIntoDB(
       Number(id),
       req.body,
-      req.user!,
+      req.user as IUser,
     );
 
     if (result.rows.length === 0) {
@@ -108,6 +120,7 @@ const updateIssue = async (req: Request, res: Response) => {
       message: "Issue updated successfully",
       data: result.rows[0],
     });
+
   } catch (error: any) {
     if (error.message === "FORBIDDEN") {
       return sendResponse(res, {
@@ -138,7 +151,7 @@ const deleteIssue = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const result = await issuesService.deleteIssueFromDB(id as any, req.user);
+    const result = await issuesService.deleteIssueFromDB(Number(id), req.user as IUser);
 
     if (result.rows.length === 0) {
       return sendResponse(res, {

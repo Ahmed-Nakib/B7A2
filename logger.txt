@@ -1,0 +1,46 @@
+
+Method -> POST - Time -> 1779510811687 - URL -> /api/auth/signup
+
+Method -> POST - Time -> 1779511001723 - URL -> /api/auth/signup
+
+Method -> POST - Time -> 1779511023643 - URL -> /api/auth/signup
+
+Method -> POST - Time -> 1779511042219 - URL -> /api/auth/login
+
+Method -> POST - Time -> 1779511055984 - URL -> /api/issues
+
+Method -> POST - Time -> 1779511073865 - URL -> /api/issues
+
+Method -> GET - Time -> 1779511086538 - URL -> /api/issues/
+
+Method -> POST - Time -> 1779511094815 - URL -> /api/issues
+
+Method -> GET - Time -> 1779511104744 - URL -> /api/issues/2
+
+Method -> PATCH - Time -> 1779511120689 - URL -> /api/issues/
+
+Method -> PATCH - Time -> 1779511132550 - URL -> /api/issues/2
+
+Method -> PATCH - Time -> 1779511164418 - URL -> /api/issues/2
+
+Method -> DELETE - Time -> 1779511175888 - URL -> /api/issues/2
+
+Method -> DELETE - Time -> 1779511213618 - URL -> /api/issues/1
+
+Method -> DELETE - Time -> 1779511234907 - URL -> /api/issues/1
+
+Method -> DELETE - Time -> 1779511240186 - URL -> /api/issues/1
+
+Method -> POST - Time -> 1779511274216 - URL -> /api/auth/login
+
+Method -> POST - Time -> 1779511292673 - URL -> /api/issues
+
+Method -> GET - Time -> 1779511299173 - URL -> /api/issues/
+
+Method -> GET - Time -> 1779511314144 - URL -> /api/issues/3
+
+Method -> PATCH - Time -> 1779511331004 - URL -> /api/issues/2
+
+Method -> PATCH - Time -> 1779511338854 - URL -> /api/issues/3
+
+Method -> DELETE - Time -> 1779511350943 - URL -> /api/issues/1
